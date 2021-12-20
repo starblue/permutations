@@ -11,14 +11,20 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Build
       run: cargo build --verbose
-      run: cargo build --verbose --features random
     - name: Run tests
       run: cargo test --verbose
+
+  build_with_feature_random:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: cargo build --verbose --features random
+    - name: Run tests
       run: cargo test --verbose --features random
+
