@@ -1,0 +1,21 @@
+[package]
+name = "permutations"
+version = "0.1.0"
+authors = ["Juergen Stuber <juergen@jstuber.net>"]
+description = "Library for generating permutations."
+homepage = "https://github.com/starblue/permutations"
+repository = "https://github.com/starblue/permutations"
+documentation = "https://docs.rs/permutations"
+keywords = ["combinatorics"]
+categories = ["mathematics"]
+license = "MIT OR Apache-2.0"
+edition = "2021"
+
+[features]
+default = []
+
+# Enable the generation of random points in a bounding box.
+random = ["rand"]
+
+[dependencies]
+rand = { version = "0.8.4", optional = true }
