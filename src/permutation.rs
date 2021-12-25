@@ -124,6 +124,23 @@ impl Permutation {
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
+    /// Returns the sign of a permutation.
+    pub fn sign(&self) -> isize {
+        let mut sign = 1;
+        let mut seen = vec![false; self.len()];
+        for i in 0..self.len() {
+            if !seen[i] {
+                seen[i] = true;
+                let mut j = self.apply(i);
+                while j != i {
+                    seen[j] = true;
+                    j = self.apply(j);
+                    sign *= -1;
+                }
+            }
+        }
+        sign
+    }
 }
 impl ops::Mul<Permutation> for Permutation {
     type Output = Permutation;
@@ -308,6 +325,22 @@ mod tests {
     fn test_is_empty_false() {
         let id = Permutation::identity(3);
         assert_eq!(false, id.is_empty());
+    }
+
+    #[test]
+    fn test_sign_identity() {
+        let id = Permutation::identity(3);
+        assert_eq!(1, id.sign());
+    }
+    #[test]
+    fn test_sign_rotation() {
+        let p = Permutation::rotation_left(3, 1);
+        assert_eq!(1, p.sign());
+    }
+    #[test]
+    fn test_sign_transposition() {
+        let p = Permutation::transposition(3, 0, 1);
+        assert_eq!(-1, p.sign());
     }
 
     #[cfg(feature = "random")]
