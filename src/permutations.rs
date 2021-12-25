@@ -86,7 +86,12 @@ impl Iterator for Iter {
             None
         }
     }
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let len = self.permutations.len() - self.next_index;
+        (len, Some(len))
+    }
 }
+impl ExactSizeIterator for Iter {}
 
 #[cfg(test)]
 mod tests {
@@ -202,5 +207,14 @@ mod tests {
             iter.next()
         );
         assert_eq!(None, iter.next());
+    }
+
+    #[test]
+    fn test_iter_exact_size_iterator_len() {
+        let ps = &Permutations::new(3);
+        let mut iter = ps.into_iter();
+        assert_eq!(6, iter.len());
+        iter.next();
+        assert_eq!(5, iter.len());
     }
 }
