@@ -124,9 +124,9 @@ impl Permutation {
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
-    /// Returns the sign of a permutation.
-    pub fn sign(&self) -> isize {
-        let mut sign = 1;
+    /// Returns true if the permutation is even.
+    pub fn is_even(&self) -> bool {
+        let mut even = true;
         let mut seen = vec![false; self.len()];
         for i in 0..self.len() {
             if !seen[i] {
@@ -135,11 +135,23 @@ impl Permutation {
                 while j != i {
                     seen[j] = true;
                     j = self.apply(j);
-                    sign *= -1;
+                    even = !even;
                 }
             }
         }
-        sign
+        even
+    }
+    /// Returns true if the permutation is odd.
+    pub fn is_odd(&self) -> bool {
+        !self.is_even()
+    }
+    /// Returns the sign of a permutation.
+    pub fn sign(&self) -> isize {
+        if self.is_even() {
+            1
+        } else {
+            -1
+        }
     }
 }
 impl ops::Mul<Permutation> for Permutation {
@@ -325,6 +337,38 @@ mod tests {
     fn test_is_empty_false() {
         let id = Permutation::identity(3);
         assert_eq!(false, id.is_empty());
+    }
+
+    #[test]
+    fn test_is_even_identity() {
+        let id = Permutation::identity(3);
+        assert_eq!(true, id.is_even());
+    }
+    #[test]
+    fn test_is_even_rotation() {
+        let p = Permutation::rotation_left(3, 1);
+        assert_eq!(true, p.is_even());
+    }
+    #[test]
+    fn test_is_even_transposition() {
+        let p = Permutation::transposition(3, 0, 1);
+        assert_eq!(false, p.is_even());
+    }
+
+    #[test]
+    fn test_is_odd_identity() {
+        let id = Permutation::identity(3);
+        assert_eq!(false, id.is_odd());
+    }
+    #[test]
+    fn test_is_odd_rotation() {
+        let p = Permutation::rotation_left(3, 1);
+        assert_eq!(false, p.is_odd());
+    }
+    #[test]
+    fn test_is_odd_transposition() {
+        let p = Permutation::transposition(3, 0, 1);
+        assert_eq!(true, p.is_odd());
     }
 
     #[test]
