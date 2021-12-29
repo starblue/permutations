@@ -1,6 +1,6 @@
 [package]
 name = "permutations"
-version = "0.1.1-alpha.0"
+version = "0.1.1"
 authors = ["Juergen Stuber <juergen@jstuber.net>"]
 description = "Library for generating permutations."
 homepage = "https://github.com/starblue/permutations"
