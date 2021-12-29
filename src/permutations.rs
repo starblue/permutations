@@ -11,7 +11,7 @@ pub struct Permutations {
 impl Permutations {
     /// Constructs the sequence of permutations of `n` elements.
     pub fn new(n: usize) -> Permutations {
-        let len = (1..=n).product::<usize>();
+        let len = (2..=n).product::<usize>();
         Permutations { n, len }
     }
     /// Returns the permutation at a given index.
@@ -99,7 +99,22 @@ mod tests {
     use crate::Permutations;
 
     #[test]
-    fn test_len() {
+    fn test_len_0() {
+        let ps = Permutations::new(0);
+        assert_eq!(1, ps.len());
+    }
+    #[test]
+    fn test_len_1() {
+        let ps = Permutations::new(1);
+        assert_eq!(1, ps.len());
+    }
+    #[test]
+    fn test_len_2() {
+        let ps = Permutations::new(2);
+        assert_eq!(2, ps.len());
+    }
+    #[test]
+    fn test_len_3() {
         let ps = Permutations::new(3);
         assert_eq!(6, ps.len());
     }
