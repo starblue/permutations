@@ -1,35 +1,12 @@
-use std::error;
-use std::fmt;
 use std::ops;
 
 #[cfg(feature = "random")]
 use rand::Rng;
 
+use crate::util::is_permutation;
 #[cfg(feature = "random")]
 use crate::Permutations;
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct TryFromError;
-impl fmt::Display for TryFromError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "ill-formed slice to permutation conversion attempted",)
-    }
-}
-impl error::Error for TryFromError {}
-
-/// Returns true if a slice is a permutation.
-///
-/// That is, all the elements in `0..len` occur exactly once in the slice.
-fn is_permutation(v: &[usize]) -> bool {
-    let n = v.len();
-    let mut seen = (0..n).map(|_| false).collect::<Vec<_>>();
-    for &e in v {
-        if (0..n).contains(&e) {
-            seen[e] = true;
-        }
-    }
-    seen.into_iter().all(|b| b)
-}
+use crate::TryFromError;
 
 /// A permutation.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -41,7 +18,11 @@ impl Permutation {
     }
     /// Returns the permutation of n elements which rotates r steps to the left.
     pub fn rotation_left(n: usize, r: usize) -> Permutation {
-        Permutation((0..n).map(|i| (i + r) % n).collect::<Box<[_]>>())
+        Permutation(
+            (0..n)
+                .map(|i| (i + r) % n)
+                .collect::<Box<[_]>>()
+        )
     }
     /// Returns the permutation of n elements which rotates r steps to the right.
     pub fn rotation_right(n: usize, r: usize) -> Permutation {

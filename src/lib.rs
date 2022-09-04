@@ -27,9 +27,19 @@ mod permutation;
 #[doc(inline)]
 pub use crate::permutation::Permutation;
 
+mod const_permutation;
+#[doc(inline)]
+pub use crate::const_permutation::ConstPermutation;
+
 mod permutations;
 #[doc(inline)]
 pub use crate::permutations::Permutations;
+
+mod error;
+#[doc(inline)]
+pub use crate::error::TryFromError;
+
+mod util;
 
 #[cfg(test)]
 mod tests {
