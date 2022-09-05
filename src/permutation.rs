@@ -88,6 +88,24 @@ impl Permutation {
             .map(|i| v[self.apply(i)].clone())
             .collect::<Vec<_>>()
     }
+    /// Permutes a slice in-place with this permutation.
+    pub fn permute_in_place<T>(&self, target: &mut [T]) {
+        assert_eq!(self.len(), target.len());
+
+        // Swap length - 1 times, because by the time we get to the last element it must already be
+        // in place.
+        for source_index in 0..(self.len() - 1) {
+            let mut dest_index = self.apply(source_index);
+
+            // If the destination index is less than the source index then we've already swapped
+            // that element. Apply the permutation again to find where it was swapped to.
+            while dest_index < source_index {
+                dest_index = self.apply(dest_index);
+            }
+
+            target.swap(source_index, dest_index);
+        }
+    }
     /// Returns the composition of the permutation with itself.
     pub fn square(&self) -> Permutation {
         self * self
@@ -297,6 +315,33 @@ mod tests {
     fn test_permute() {
         let p = Permutation(Box::new([0, 2, 1]));
         assert_eq!(vec!['a', 'c', 'b'], p.permute(&vec!['a', 'b', 'c']));
+    }
+
+    #[test]
+    fn test_permute_in_place_identity() {
+        let permutation = Permutation(Box::new([0, 1, 2, 3, 4]));
+        let mut target = ['a', 'b', 'c', 'd', 'e'];
+        permutation.permute_in_place(&mut target);
+
+        assert_eq!(['a', 'b', 'c', 'd', 'e'], target);
+    }
+
+    #[test]
+    fn test_permute_in_place_reversed() {
+        let permutation = Permutation(Box::new([4, 3, 2, 1, 0]));
+        let mut target = ['a', 'b', 'c', 'd', 'e'];
+        permutation.permute_in_place(&mut target);
+
+        assert_eq!(['e', 'd', 'c', 'b', 'a'], target);
+    }
+
+    #[test]
+    fn test_permute_in_place_cycle() {
+        let permutation = Permutation(Box::new([1, 2, 3, 4, 0]));
+        let mut target = ['a', 'b', 'c', 'd', 'e'];
+        permutation.permute_in_place(&mut target);
+
+        assert_eq!(['b', 'c', 'd', 'e', 'a'], target);
     }
 
     #[test]
