@@ -157,34 +157,19 @@ impl Permutation {
 impl ops::Mul<Permutation> for Permutation {
     type Output = Self;
     fn mul(self, other: Self) -> Self {
-        assert_eq!(self.len(), other.len());
-        Self(
-            (0..self.len())
-                .map(|i| other.apply(self.apply(i)))
-                .collect(),
-        )
+        &self * &other
     }
 }
 impl ops::Mul<Permutation> for &Permutation {
     type Output = Permutation;
     fn mul(self, other: Permutation) -> Self::Output {
-        assert_eq!(self.len(), other.len());
-        Permutation(
-            (0..self.len())
-                .map(|i| other.apply(self.apply(i)))
-                .collect(),
-        )
+        self * &other
     }
 }
 impl ops::Mul<&Self> for Permutation {
     type Output = Self;
     fn mul(self, other: &Self) -> Self::Output {
-        assert_eq!(self.len(), other.len());
-        Self(
-            (0..self.len())
-                .map(|i| other.apply(self.apply(i)))
-                .collect(),
-        )
+        &self * other
     }
 }
 impl ops::Mul<&Permutation> for &Permutation {
