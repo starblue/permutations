@@ -36,21 +36,21 @@ fn is_permutation(v: &[usize]) -> bool {
 pub struct Permutation(Box<[usize]>);
 impl Permutation {
     /// Returns the identity permutation of n elements.
-    pub fn identity(n: usize) -> Permutation {
-        Permutation((0..n).collect::<Box<[_]>>())
+    pub fn identity(n: usize) -> Self {
+        Self((0..n).collect())
     }
     /// Returns the permutation of n elements which rotates r steps to the left.
     pub fn rotation_left(n: usize, r: usize) -> Permutation {
-        Permutation((0..n).map(|i| (i + r) % n).collect::<Box<[_]>>())
+        Self((0..n).map(|i| (i + r) % n).collect())
     }
     /// Returns the permutation of n elements which rotates r steps to the right.
-    pub fn rotation_right(n: usize, r: usize) -> Permutation {
-        Permutation::rotation_left(n, n - (r % n))
+    pub fn rotation_right(n: usize, r: usize) -> Self {
+        Self::rotation_left(n, n - (r % n))
     }
     /// Returns the permutation of n elements which exchanges the elements at i and j.
-    pub fn transposition(n: usize, i: usize, j: usize) -> Permutation {
+    pub fn transposition(n: usize, i: usize, j: usize) -> Self {
         assert!(i < n && j < n);
-        Permutation(
+        Self(
             (0..n)
                 .map(|k| {
                     if k == i {
@@ -61,7 +61,7 @@ impl Permutation {
                         k
                     }
                 })
-                .collect::<Box<[_]>>(),
+                .collect(),
         )
     }
 
@@ -155,13 +155,13 @@ impl Permutation {
     }
 }
 impl ops::Mul<Permutation> for Permutation {
-    type Output = Permutation;
-    fn mul(self, other: Permutation) -> Self::Output {
+    type Output = Self;
+    fn mul(self, other: Self) -> Self {
         assert_eq!(self.len(), other.len());
-        Permutation(
+        Self(
             (0..self.len())
                 .map(|i| other.apply(self.apply(i)))
-                .collect::<Box<[_]>>(),
+                .collect(),
         )
     }
 }
@@ -172,18 +172,18 @@ impl ops::Mul<Permutation> for &Permutation {
         Permutation(
             (0..self.len())
                 .map(|i| other.apply(self.apply(i)))
-                .collect::<Box<[_]>>(),
+                .collect(),
         )
     }
 }
-impl ops::Mul<&Permutation> for Permutation {
-    type Output = Permutation;
-    fn mul(self, other: &Permutation) -> Self::Output {
+impl ops::Mul<&Self> for Permutation {
+    type Output = Self;
+    fn mul(self, other: &Self) -> Self::Output {
         assert_eq!(self.len(), other.len());
-        Permutation(
+        Self(
             (0..self.len())
                 .map(|i| other.apply(self.apply(i)))
-                .collect::<Box<[_]>>(),
+                .collect(),
         )
     }
 }
@@ -194,15 +194,15 @@ impl ops::Mul<&Permutation> for &Permutation {
         Permutation(
             (0..self.len())
                 .map(|i| other.apply(self.apply(i)))
-                .collect::<Box<[_]>>(),
+                .collect(),
         )
     }
 }
 impl TryFrom<Vec<usize>> for Permutation {
     type Error = TryFromError;
-    fn try_from(v: Vec<usize>) -> Result<Permutation, TryFromError> {
+    fn try_from(v: Vec<usize>) -> Result<Self, TryFromError> {
         if is_permutation(&v) {
-            Ok(Permutation(v.into_boxed_slice()))
+            Ok(Self(v.into_boxed_slice()))
         } else {
             Err(TryFromError)
         }
@@ -210,9 +210,9 @@ impl TryFrom<Vec<usize>> for Permutation {
 }
 impl<'a> TryFrom<&'a Vec<usize>> for Permutation {
     type Error = TryFromError;
-    fn try_from(v: &'a Vec<usize>) -> Result<Permutation, TryFromError> {
+    fn try_from(v: &'a Vec<usize>) -> Result<Self, TryFromError> {
         if is_permutation(v) {
-            Ok(Permutation(Box::from(&v[..])))
+            Ok(Self(Box::from(&v[..])))
         } else {
             Err(TryFromError)
         }
@@ -220,9 +220,9 @@ impl<'a> TryFrom<&'a Vec<usize>> for Permutation {
 }
 impl TryFrom<&[usize]> for Permutation {
     type Error = TryFromError;
-    fn try_from(a: &[usize]) -> Result<Permutation, TryFromError> {
+    fn try_from(a: &[usize]) -> Result<Self, TryFromError> {
         if is_permutation(a) {
-            Ok(Permutation(Box::from(a)))
+            Ok(Self(Box::from(a)))
         } else {
             Err(TryFromError)
         }
@@ -230,9 +230,9 @@ impl TryFrom<&[usize]> for Permutation {
 }
 impl<const N: usize> TryFrom<&[usize; N]> for Permutation {
     type Error = TryFromError;
-    fn try_from(a: &[usize; N]) -> Result<Permutation, TryFromError> {
+    fn try_from(a: &[usize; N]) -> Result<Self, TryFromError> {
         if is_permutation(a) {
-            Ok(Permutation(Box::from(&a[..])))
+            Ok(Self(Box::from(&a[..])))
         } else {
             Err(TryFromError)
         }
