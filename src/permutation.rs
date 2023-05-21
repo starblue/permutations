@@ -34,13 +34,14 @@ fn is_permutation(v: &[usize]) -> bool {
 /// A permutation.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Permutation(Box<[usize]>);
+
 impl Permutation {
     /// Returns the identity permutation of n elements.
     pub fn identity(n: usize) -> Self {
         Self((0..n).collect())
     }
     /// Returns the permutation of n elements which rotates r steps to the left.
-    pub fn rotation_left(n: usize, r: usize) -> Permutation {
+    pub fn rotation_left(n: usize, r: usize) -> Self {
         Self((0..n).map(|i| (i + r) % n).collect())
     }
     /// Returns the permutation of n elements which rotates r steps to the right.
@@ -69,11 +70,11 @@ impl Permutation {
     ///
     /// Uses a uniform distribution.
     #[cfg(feature = "random")]
-    pub fn random<R>(rng: &mut R, n: usize) -> Permutation
+    pub fn random<R>(rng: &mut R, n: usize) -> Self
     where
         R: Rng,
     {
-        let ps = Permutations::new(n);
+        let ps = Self::new(n);
         let i = rng.gen_range(0..ps.len());
         ps.get(i).expect("random index out of range")
     }
@@ -84,18 +85,16 @@ impl Permutation {
     /// Returns a vector permuted by this permutation.
     pub fn permute<T: Clone>(&self, v: &[T]) -> Vec<T> {
         assert_eq!(self.len(), v.len());
-        (0..self.len())
-            .map(|i| v[self.apply(i)].clone())
-            .collect::<Vec<_>>()
+        (0..self.len()).map(|i| v[self.apply(i)].clone()).collect()
     }
     /// Returns the composition of the permutation with itself.
-    pub fn square(&self) -> Permutation {
+    pub fn square(&self) -> Self {
         self * self
     }
     /// Returns the composition of the permutation with itself `exp` number of times.
-    pub fn pow(&self, exp: u32) -> Permutation {
+    pub fn pow(&self, exp: u32) -> Self {
         if exp == 0 {
-            Permutation::identity(self.len())
+            Self::identity(self.len())
         } else if exp == 1 {
             self.clone()
         } else if exp % 2 == 0 {
@@ -105,14 +104,14 @@ impl Permutation {
         }
     }
     /// Returns the inverse permutation.
-    pub fn inv(&self) -> Permutation {
+    pub fn inv(&self) -> Self {
         let len = self.len();
         let mut map = vec![0; len];
         for i in 0..len {
             let j = self.0[i];
             map[j] = i;
         }
-        Permutation(map.into_boxed_slice())
+        Self(map.into_boxed_slice())
     }
     /// The length of the permutation.
     ///

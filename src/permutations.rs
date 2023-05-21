@@ -10,9 +10,9 @@ pub struct Permutations {
 }
 impl Permutations {
     /// Constructs the sequence of permutations of `n` elements.
-    pub fn new(n: usize) -> Permutations {
+    pub fn new(n: usize) -> Self {
         let len = (2..=n).product::<usize>();
-        Permutations { n, len }
+        Self { n, len }
     }
     /// Returns the permutation at a given index.
     pub fn get(&self, index: usize) -> Option<Permutation> {
@@ -68,9 +68,9 @@ pub struct Iter {
     next_index: usize,
 }
 impl Iter {
-    fn new(permutations: Permutations) -> Iter {
+    fn new(permutations: Permutations) -> Self {
         let next_index = 0;
-        Iter {
+        Self {
             permutations,
             next_index,
         }
