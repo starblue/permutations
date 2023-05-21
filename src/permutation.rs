@@ -22,7 +22,7 @@ impl error::Error for TryFromError {}
 /// That is, all the elements in `0..len` occur exactly once in the slice.
 fn is_permutation(v: &[usize]) -> bool {
     let n = v.len();
-    let mut seen = (0..n).map(|_| false).collect::<Vec<_>>();
+    let mut seen = vec![false; n];
     for &e in v {
         if (0..n).contains(&e) {
             seen[e] = true;
@@ -153,6 +153,7 @@ impl Permutation {
         }
     }
 }
+
 impl ops::Mul<Permutation> for Permutation {
     type Output = Self;
     fn mul(self, other: Self) -> Self {
