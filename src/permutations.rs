@@ -69,10 +69,9 @@ pub struct Iter {
 }
 impl Iter {
     fn new(permutations: Permutations) -> Self {
-        let next_index = 0;
         Self {
             permutations,
-            next_index,
+            next_index: 0,
         }
     }
 }

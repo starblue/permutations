@@ -107,9 +107,8 @@ impl Permutation {
     pub fn inv(&self) -> Self {
         let len = self.len();
         let mut map = vec![0; len];
-        for i in 0..len {
-            let j = self.0[i];
-            map[j] = i;
+        for (i, j) in self.0.iter().enumerate() {
+            map[*j] = i;
         }
         Self(map.into_boxed_slice())
     }
