@@ -8,12 +8,14 @@ pub struct Permutations {
     n: usize,
     len: usize,
 }
+
 impl Permutations {
     /// Constructs the sequence of permutations of `n` elements.
     pub fn new(n: usize) -> Self {
         let len = (2..=n).product::<usize>();
         Self { n, len }
     }
+
     /// Returns the permutation at a given index.
     pub fn get(&self, index: usize) -> Option<Permutation> {
         if index < self.len {
@@ -47,6 +49,7 @@ impl Permutations {
         Iter::new(self.clone())
     }
 }
+
 impl IntoIterator for Permutations {
     type Item = Permutation;
     type IntoIter = Iter;
@@ -54,6 +57,7 @@ impl IntoIterator for Permutations {
         Iter::new(self)
     }
 }
+
 impl<'a> IntoIterator for &'a Permutations {
     type Item = Permutation;
     type IntoIter = Iter;
@@ -67,6 +71,7 @@ pub struct Iter {
     permutations: Permutations,
     next_index: usize,
 }
+
 impl Iter {
     fn new(permutations: Permutations) -> Self {
         Self {
@@ -75,6 +80,7 @@ impl Iter {
         }
     }
 }
+
 impl Iterator for Iter {
     type Item = Permutation;
     fn next(&mut self) -> Option<Permutation> {
@@ -90,6 +96,7 @@ impl Iterator for Iter {
         (len, Some(len))
     }
 }
+
 impl ExactSizeIterator for Iter {}
 
 #[cfg(test)]

@@ -110,7 +110,7 @@ impl Permutation {
         for (i, j) in self.0.iter().enumerate() {
             map[*j] = i;
         }
-        Self(map.into_boxed_slice())
+        Self(map.into())
     }
     /// The length of the permutation.
     ///
@@ -159,18 +159,21 @@ impl ops::Mul<Permutation> for Permutation {
         &self * &other
     }
 }
+
 impl ops::Mul<Permutation> for &Permutation {
     type Output = Permutation;
     fn mul(self, other: Permutation) -> Self::Output {
         self * &other
     }
 }
+
 impl ops::Mul<&Self> for Permutation {
     type Output = Self;
     fn mul(self, other: &Self) -> Self::Output {
         &self * other
     }
 }
+
 impl ops::Mul<&Permutation> for &Permutation {
     type Output = Permutation;
     fn mul(self, other: &Permutation) -> Self::Output {
@@ -182,16 +185,18 @@ impl ops::Mul<&Permutation> for &Permutation {
         )
     }
 }
+
 impl TryFrom<Vec<usize>> for Permutation {
     type Error = TryFromError;
     fn try_from(v: Vec<usize>) -> Result<Self, TryFromError> {
         if is_permutation(&v) {
-            Ok(Self(v.into_boxed_slice()))
+            Ok(Self(v.into()))
         } else {
             Err(TryFromError)
         }
     }
 }
+
 impl<'a> TryFrom<&'a Vec<usize>> for Permutation {
     type Error = TryFromError;
     fn try_from(v: &'a Vec<usize>) -> Result<Self, TryFromError> {
@@ -202,6 +207,7 @@ impl<'a> TryFrom<&'a Vec<usize>> for Permutation {
         }
     }
 }
+
 impl TryFrom<&[usize]> for Permutation {
     type Error = TryFromError;
     fn try_from(a: &[usize]) -> Result<Self, TryFromError> {
@@ -212,6 +218,7 @@ impl TryFrom<&[usize]> for Permutation {
         }
     }
 }
+
 impl<const N: usize> TryFrom<&[usize; N]> for Permutation {
     type Error = TryFromError;
     fn try_from(a: &[usize; N]) -> Result<Self, TryFromError> {
@@ -407,19 +414,19 @@ mod tests {
     #[test]
     fn test_try_from_ok_owned() {
         let v = vec![2, 1, 0];
-        let result = Ok(Permutation(v.clone().into_boxed_slice()));
+        let result = Ok(Permutation(v.clone().into()));
         assert_eq!(result, Permutation::try_from(v));
     }
     #[test]
     fn test_try_from_ok_vec_ref() {
         let v = vec![2, 1, 0];
-        let result = Ok(Permutation(v.clone().into_boxed_slice()));
+        let result = Ok(Permutation(v.clone().into()));
         assert_eq!(result, Permutation::try_from(&v));
     }
     #[test]
     fn test_try_from_ok_slice_ref() {
         let v = vec![2, 1, 0];
-        let result = Ok(Permutation(v.clone().into_boxed_slice()));
+        let result = Ok(Permutation(v.clone().into()));
         assert_eq!(result, Permutation::try_from(&v[..]));
     }
     #[test]
