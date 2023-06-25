@@ -31,6 +31,14 @@ fn is_permutation(v: &[usize]) -> bool {
     seen.into_iter().all(|b| b)
 }
 
+#[inline]
+pub(crate) fn validate(v: &[usize]) -> Result<(), TryFromError> {
+    if !is_permutation(v) {
+        return Err(TryFromError);
+    }
+    Ok(())
+}
+
 /// A permutation.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Permutation(Box<[usize]>);
@@ -189,44 +197,32 @@ impl ops::Mul<&Permutation> for &Permutation {
 impl TryFrom<Vec<usize>> for Permutation {
     type Error = TryFromError;
     fn try_from(v: Vec<usize>) -> Result<Self, TryFromError> {
-        if is_permutation(&v) {
-            Ok(Self(v.into()))
-        } else {
-            Err(TryFromError)
-        }
+        let _ = validate(&v)?;
+        Ok(Self(v.into()))
     }
 }
 
 impl<'a> TryFrom<&'a Vec<usize>> for Permutation {
     type Error = TryFromError;
     fn try_from(v: &'a Vec<usize>) -> Result<Self, TryFromError> {
-        if is_permutation(v) {
-            Ok(Self(Box::from(&v[..])))
-        } else {
-            Err(TryFromError)
-        }
+        let _ = validate(&v)?;
+        Ok(Self(v[..].into()))
     }
 }
 
 impl TryFrom<&[usize]> for Permutation {
     type Error = TryFromError;
     fn try_from(a: &[usize]) -> Result<Self, TryFromError> {
-        if is_permutation(a) {
-            Ok(Self(Box::from(a)))
-        } else {
-            Err(TryFromError)
-        }
+        let _ = validate(&a)?;
+        Ok(Self(a.into()))
     }
 }
 
 impl<const N: usize> TryFrom<&[usize; N]> for Permutation {
     type Error = TryFromError;
     fn try_from(a: &[usize; N]) -> Result<Self, TryFromError> {
-        if is_permutation(a) {
-            Ok(Self(Box::from(&a[..])))
-        } else {
-            Err(TryFromError)
-        }
+        let _ = validate(a.as_slice())?;
+        Ok(Self(a[..].into()))
     }
 }
 
