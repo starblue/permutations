@@ -1,12 +1,7 @@
-use std::error;
-use std::fmt;
-use std::ops;
+use std::{error, fmt, ops};
 
 #[cfg(feature = "random")]
-use rand::Rng;
-
-#[cfg(feature = "random")]
-use crate::Permutations;
+use {crate::Permutations, rand::Rng};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct TryFromError;
