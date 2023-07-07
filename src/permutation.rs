@@ -1,12 +1,7 @@
-use std::error;
-use std::fmt;
-use std::ops;
+use std::{error, fmt, ops};
 
 #[cfg(feature = "random")]
-use rand::Rng;
-
-#[cfg(feature = "random")]
-use crate::Permutations;
+use {crate::Permutations, rand::Rng};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct TryFromError;
@@ -22,7 +17,7 @@ impl error::Error for TryFromError {}
 /// That is, all the elements in `0..len` occur exactly once in the slice.
 fn is_permutation(v: &[usize]) -> bool {
     let n = v.len();
-    let mut seen = (0..n).map(|_| false).collect::<Vec<_>>();
+    let mut seen = vec![false; n];
     for &e in v {
         if (0..n).contains(&e) {
             seen[e] = true;
@@ -34,23 +29,30 @@ fn is_permutation(v: &[usize]) -> bool {
 /// A permutation.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Permutation(Box<[usize]>);
+
 impl Permutation {
     /// Returns the identity permutation of n elements.
-    pub fn identity(n: usize) -> Permutation {
-        Permutation((0..n).collect::<Box<[_]>>())
+    pub fn identity(n: usize) -> Self {
+        Self((0..n).collect())
     }
+
+    /// Checks if permutation is identity
+    pub fn is_identity(&self) -> bool {
+        (0..self.len()).eq(self.0.iter().cloned())
+    }
+
     /// Returns the permutation of n elements which rotates r steps to the left.
-    pub fn rotation_left(n: usize, r: usize) -> Permutation {
-        Permutation((0..n).map(|i| (i + r) % n).collect::<Box<[_]>>())
+    pub fn rotation_left(n: usize, r: usize) -> Self {
+        Self((0..n).map(|i| (i + r) % n).collect())
     }
     /// Returns the permutation of n elements which rotates r steps to the right.
-    pub fn rotation_right(n: usize, r: usize) -> Permutation {
-        Permutation::rotation_left(n, n - (r % n))
+    pub fn rotation_right(n: usize, r: usize) -> Self {
+        Self::rotation_left(n, n - (r % n))
     }
     /// Returns the permutation of n elements which exchanges the elements at i and j.
-    pub fn transposition(n: usize, i: usize, j: usize) -> Permutation {
+    pub fn transposition(n: usize, i: usize, j: usize) -> Self {
         assert!(i < n && j < n);
-        Permutation(
+        Self(
             (0..n)
                 .map(|k| {
                     if k == i {
@@ -61,7 +63,7 @@ impl Permutation {
                         k
                     }
                 })
-                .collect::<Box<[_]>>(),
+                .collect(),
         )
     }
 
@@ -69,11 +71,11 @@ impl Permutation {
     ///
     /// Uses a uniform distribution.
     #[cfg(feature = "random")]
-    pub fn random<R>(rng: &mut R, n: usize) -> Permutation
+    pub fn random<R>(rng: &mut R, n: usize) -> Self
     where
         R: Rng,
     {
-        let ps = Permutations::new(n);
+        let ps = Self::new(n);
         let i = rng.gen_range(0..ps.len());
         ps.get(i).expect("random index out of range")
     }
@@ -84,18 +86,16 @@ impl Permutation {
     /// Returns a vector permuted by this permutation.
     pub fn permute<T: Clone>(&self, v: &[T]) -> Vec<T> {
         assert_eq!(self.len(), v.len());
-        (0..self.len())
-            .map(|i| v[self.apply(i)].clone())
-            .collect::<Vec<_>>()
+        (0..self.len()).map(|i| v[self.apply(i)].clone()).collect()
     }
     /// Returns the composition of the permutation with itself.
-    pub fn square(&self) -> Permutation {
+    pub fn square(&self) -> Self {
         self * self
     }
     /// Returns the composition of the permutation with itself `exp` number of times.
-    pub fn pow(&self, exp: u32) -> Permutation {
+    pub fn pow(&self, exp: u32) -> Self {
         if exp == 0 {
-            Permutation::identity(self.len())
+            Self::identity(self.len())
         } else if exp == 1 {
             self.clone()
         } else if exp % 2 == 0 {
@@ -105,14 +105,13 @@ impl Permutation {
         }
     }
     /// Returns the inverse permutation.
-    pub fn inv(&self) -> Permutation {
+    pub fn inv(&self) -> Self {
         let len = self.len();
         let mut map = vec![0; len];
-        for i in 0..len {
-            let j = self.0[i];
-            map[j] = i;
+        for (i, j) in self.0.iter().enumerate() {
+            map[*j] = i;
         }
-        Permutation(map.into_boxed_slice())
+        Self(map.into())
     }
     /// The length of the permutation.
     ///
@@ -154,88 +153,77 @@ impl Permutation {
         }
     }
 }
-impl ops::Mul<Permutation> for Permutation {
-    type Output = Permutation;
-    fn mul(self, other: Permutation) -> Self::Output {
-        assert_eq!(self.len(), other.len());
-        Permutation(
-            (0..self.len())
-                .map(|i| other.apply(self.apply(i)))
-                .collect::<Box<[_]>>(),
-        )
+
+impl ops::Mul for Permutation {
+    type Output = Self;
+    fn mul(self, other: Self) -> Self {
+        &self * &other
     }
 }
+
 impl ops::Mul<Permutation> for &Permutation {
     type Output = Permutation;
     fn mul(self, other: Permutation) -> Self::Output {
-        assert_eq!(self.len(), other.len());
-        Permutation(
-            (0..self.len())
-                .map(|i| other.apply(self.apply(i)))
-                .collect::<Box<[_]>>(),
-        )
+        self * &other
     }
 }
-impl ops::Mul<&Permutation> for Permutation {
+
+impl ops::Mul<&Self> for Permutation {
+    type Output = Self;
+    fn mul(self, other: &Self) -> Self {
+        &self * other
+    }
+}
+
+impl ops::Mul for &Permutation {
     type Output = Permutation;
     fn mul(self, other: &Permutation) -> Self::Output {
         assert_eq!(self.len(), other.len());
         Permutation(
             (0..self.len())
                 .map(|i| other.apply(self.apply(i)))
-                .collect::<Box<[_]>>(),
+                .collect(),
         )
     }
 }
-impl ops::Mul<&Permutation> for &Permutation {
-    type Output = Permutation;
-    fn mul(self, other: &Permutation) -> Self::Output {
-        assert_eq!(self.len(), other.len());
-        Permutation(
-            (0..self.len())
-                .map(|i| other.apply(self.apply(i)))
-                .collect::<Box<[_]>>(),
-        )
+
+#[inline]
+fn validate(v: &[usize]) -> Result<(), TryFromError> {
+    if !is_permutation(v) {
+        return Err(TryFromError);
     }
+    Ok(())
 }
+
 impl TryFrom<Vec<usize>> for Permutation {
     type Error = TryFromError;
-    fn try_from(v: Vec<usize>) -> Result<Permutation, TryFromError> {
-        if is_permutation(&v) {
-            Ok(Permutation(v.into_boxed_slice()))
-        } else {
-            Err(TryFromError)
-        }
+    fn try_from(v: Vec<usize>) -> Result<Self, TryFromError> {
+        let _ = validate(&v)?;
+        Ok(Self(v.into()))
     }
 }
+
 impl<'a> TryFrom<&'a Vec<usize>> for Permutation {
     type Error = TryFromError;
-    fn try_from(v: &'a Vec<usize>) -> Result<Permutation, TryFromError> {
-        if is_permutation(v) {
-            Ok(Permutation(Box::from(&v[..])))
-        } else {
-            Err(TryFromError)
-        }
+    fn try_from(v: &'a Vec<usize>) -> Result<Self, TryFromError> {
+        let _ = validate(&v)?;
+        Ok(Self(v[..].into()))
     }
 }
+
 impl TryFrom<&[usize]> for Permutation {
     type Error = TryFromError;
-    fn try_from(a: &[usize]) -> Result<Permutation, TryFromError> {
-        if is_permutation(a) {
-            Ok(Permutation(Box::from(a)))
-        } else {
-            Err(TryFromError)
-        }
+    fn try_from(a: &[usize]) -> Result<Self, TryFromError> {
+        let _ = validate(&a)?;
+        Ok(Self(a.into()))
     }
 }
+
 impl<const N: usize> TryFrom<&[usize; N]> for Permutation {
     type Error = TryFromError;
-    fn try_from(a: &[usize; N]) -> Result<Permutation, TryFromError> {
-        if is_permutation(a) {
-            Ok(Permutation(Box::from(&a[..])))
-        } else {
-            Err(TryFromError)
-        }
+    fn try_from(a: &[usize; N]) -> Result<Self, TryFromError> {
+        let _ = validate(a.as_slice())?;
+        Ok(Self(a[..].into()))
     }
 }
 
@@ -267,6 +255,7 @@ mod tests {
     fn test_identity() {
         let id = Permutation::identity(3);
         assert_eq!(Permutation(Box::new([0, 1, 2])), id);
+        assert!(id.is_identity());
     }
 
     #[test]
@@ -423,19 +412,19 @@ mod tests {
     #[test]
     fn test_try_from_ok_owned() {
         let v = vec![2, 1, 0];
-        let result = Ok(Permutation(v.clone().into_boxed_slice()));
+        let result = Ok(Permutation(v.clone().into()));
         assert_eq!(result, Permutation::try_from(v));
     }
     #[test]
     fn test_try_from_ok_vec_ref() {
         let v = vec![2, 1, 0];
-        let result = Ok(Permutation(v.clone().into_boxed_slice()));
+        let result = Ok(Permutation(v.clone().into()));
         assert_eq!(result, Permutation::try_from(&v));
     }
     #[test]
     fn test_try_from_ok_slice_ref() {
         let v = vec![2, 1, 0];
-        let result = Ok(Permutation(v.clone().into_boxed_slice()));
+        let result = Ok(Permutation(v.clone().into()));
         assert_eq!(result, Permutation::try_from(&v[..]));
     }
     #[test]

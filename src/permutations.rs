@@ -8,31 +8,32 @@ pub struct Permutations {
     n: usize,
     len: usize,
 }
+
 impl Permutations {
     /// Constructs the sequence of permutations of `n` elements.
-    pub fn new(n: usize) -> Permutations {
+    pub fn new(n: usize) -> Self {
         let len = (2..=n).product::<usize>();
-        Permutations { n, len }
+        Self { n, len }
     }
+
     /// Returns the permutation at a given index.
     pub fn get(&self, index: usize) -> Option<Permutation> {
-        if index < self.len {
-            let mut v = Vec::new();
-            let mut es = (0..self.n).collect::<Vec<_>>();
-            let mut divisor = self.len;
-            let mut k = self.n;
-            let mut i = index;
-            while k > 0 {
-                divisor /= k;
-                let j = i / divisor;
-                v.push(es.remove(j));
-                i %= divisor;
-                k -= 1;
-            }
-            Some(Permutation::try_from(v).unwrap())
-        } else {
-            None
+        if index >= self.len {
+            return None;
         }
+        let mut v = vec![];
+        let mut es = (0..self.n).collect::<Vec<_>>();
+        let mut divisor = self.len;
+        let mut k = self.n;
+        let mut i = index;
+        while k > 0 {
+            divisor /= k;
+            let j = i / divisor;
+            v.push(es.remove(j));
+            i %= divisor;
+            k -= 1;
+        }
+        Some(Permutation::try_from(v).unwrap())
     }
     /// Returns the number of permutations in the sequence.
     ///
@@ -47,6 +48,7 @@ impl Permutations {
         Iter::new(self.clone())
     }
 }
+
 impl IntoIterator for Permutations {
     type Item = Permutation;
     type IntoIter = Iter;
@@ -54,6 +56,7 @@ impl IntoIterator for Permutations {
         Iter::new(self)
     }
 }
+
 impl<'a> IntoIterator for &'a Permutations {
     type Item = Permutation;
     type IntoIter = Iter;
@@ -67,15 +70,16 @@ pub struct Iter {
     permutations: Permutations,
     next_index: usize,
 }
+
 impl Iter {
-    fn new(permutations: Permutations) -> Iter {
-        let next_index = 0;
-        Iter {
+    fn new(permutations: Permutations) -> Self {
+        Self {
             permutations,
-            next_index,
+            next_index: 0,
         }
     }
 }
+
 impl Iterator for Iter {
     type Item = Permutation;
     fn next(&mut self) -> Option<Permutation> {
@@ -91,6 +95,7 @@ impl Iterator for Iter {
         (len, Some(len))
     }
 }
+
 impl ExactSizeIterator for Iter {}
 
 #[cfg(test)]
