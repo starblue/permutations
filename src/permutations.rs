@@ -18,23 +18,22 @@ impl Permutations {
 
     /// Returns the permutation at a given index.
     pub fn get(&self, index: usize) -> Option<Permutation> {
-        if index < self.len {
-            let mut v = Vec::new();
-            let mut es = (0..self.n).collect::<Vec<_>>();
-            let mut divisor = self.len;
-            let mut k = self.n;
-            let mut i = index;
-            while k > 0 {
-                divisor /= k;
-                let j = i / divisor;
-                v.push(es.remove(j));
-                i %= divisor;
-                k -= 1;
-            }
-            Some(Permutation::try_from(v).unwrap())
-        } else {
-            None
+        if index >= self.len {
+            return None;
         }
+        let mut v = vec![];
+        let mut es = (0..self.n).collect::<Vec<_>>();
+        let mut divisor = self.len;
+        let mut k = self.n;
+        let mut i = index;
+        while k > 0 {
+            divisor /= k;
+            let j = i / divisor;
+            v.push(es.remove(j));
+            i %= divisor;
+            k -= 1;
+        }
+        Some(Permutation::try_from(v).unwrap())
     }
     /// Returns the number of permutations in the sequence.
     ///

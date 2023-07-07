@@ -43,6 +43,12 @@ impl Permutation {
     pub fn identity(n: usize) -> Self {
         Self((0..n).collect())
     }
+
+    /// Checks if permutation is identity
+    pub fn is_identity(&self) -> bool {
+        (0..self.len()).eq(self.0.iter().cloned())
+    }
+
     /// Returns the permutation of n elements which rotates r steps to the left.
     pub fn rotation_left(n: usize, r: usize) -> Self {
         Self((0..n).map(|i| (i + r) % n).collect())
@@ -156,7 +162,7 @@ impl Permutation {
     }
 }
 
-impl ops::Mul<Permutation> for Permutation {
+impl ops::Mul for Permutation {
     type Output = Self;
     fn mul(self, other: Self) -> Self {
         &self * &other
@@ -172,12 +178,12 @@ impl ops::Mul<Permutation> for &Permutation {
 
 impl ops::Mul<&Self> for Permutation {
     type Output = Self;
-    fn mul(self, other: &Self) -> Self::Output {
+    fn mul(self, other: &Self) -> Self {
         &self * other
     }
 }
 
-impl ops::Mul<&Permutation> for &Permutation {
+impl ops::Mul for &Permutation {
     type Output = Permutation;
     fn mul(self, other: &Permutation) -> Self::Output {
         assert_eq!(self.len(), other.len());
@@ -249,6 +255,7 @@ mod tests {
     fn test_identity() {
         let id = Permutation::identity(3);
         assert_eq!(Permutation(Box::new([0, 1, 2])), id);
+        assert!(id.is_identity());
     }
 
     #[test]
