@@ -26,14 +26,6 @@ fn is_permutation(v: &[usize]) -> bool {
     seen.into_iter().all(|b| b)
 }
 
-#[inline]
-pub(crate) fn validate(v: &[usize]) -> Result<(), TryFromError> {
-    if !is_permutation(v) {
-        return Err(TryFromError);
-    }
-    Ok(())
-}
-
 /// A permutation.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Permutation(Box<[usize]>);
@@ -193,6 +185,14 @@ impl ops::Mul for &Permutation {
                 .collect(),
         )
     }
+}
+
+#[inline]
+fn validate(v: &[usize]) -> Result<(), TryFromError> {
+    if !is_permutation(v) {
+        return Err(TryFromError);
+    }
+    Ok(())
 }
 
 impl TryFrom<Vec<usize>> for Permutation {
